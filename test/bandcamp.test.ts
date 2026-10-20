@@ -37,6 +37,40 @@ describe("parseTralbum (real fixtures)", () => {
     expect(release.artworkUrl).toBe("https://f4.bcbits.com/img/a3390257927_10.jpg");
   });
 
+  it("links every album track to its own page", () => {
+    const release = parseTralbum(extractTralbum(ALBUM)!)!;
+    expect(release).toMatchObject({
+      kind: "album",
+      url: "https://c418.bandcamp.com/album/minecraft-volume-alpha",
+      albumUrl: "https://c418.bandcamp.com/album/minecraft-volume-alpha",
+    });
+    expect(release.tracks[2]).toMatchObject({
+      url: "https://c418.bandcamp.com/track/subwoofer-lullaby",
+      trackNum: 3,
+      artist: null,
+    });
+    expect(release.tracks.every((t) => t.url?.startsWith("https://c418.bandcamp.com/track/"))).toBe(true);
+  });
+
+  it("knows which album a track page belongs to", () => {
+    const release = parseTralbum(extractTralbum(TRACK)!)!;
+    expect(release).toMatchObject({
+      kind: "track",
+      url: "https://c418.bandcamp.com/track/subwoofer-lullaby",
+      albumUrl: "https://c418.bandcamp.com/album/minecraft-volume-alpha",
+    });
+    expect(release.tracks[0].url).toBe("https://c418.bandcamp.com/track/subwoofer-lullaby");
+  });
+
+  it("credits a compilation track's own artist", () => {
+    const release = parseTralbum({
+      artist: "Various Artists",
+      url: "https://label.bandcamp.com/album/comp",
+      trackinfo: [{ track_id: 1, title: "t", artist: "Someone", title_link: "/track/t", file: null }],
+    })!;
+    expect(release.tracks[0]).toMatchObject({ artist: "Someone", url: "https://label.bandcamp.com/track/t" });
+  });
+
   it("reads a single track page, matching its og:title", () => {
     const release = parseTralbum(extractTralbum(TRACK)!)!;
     expect(release.tracks).toHaveLength(1);
@@ -65,7 +99,9 @@ describe("parseTralbum (real fixtures)", () => {
 
   it("folds a /track/ page's `current` in when trackinfo lacks it", () => {
     const release = parseTralbum({ current: { track_id: 9, title: "solo", file: { "mp3-128": "s" } }, trackinfo: [] })!;
-    expect(release.tracks).toEqual([{ trackId: "9", title: "solo", streamUrl: "s", durationSec: null }]);
+    expect(release.tracks).toEqual([
+      { trackId: "9", title: "solo", url: null, trackNum: null, artist: null, streamUrl: "s", durationSec: null },
+    ]);
   });
 
   it("is null without any track", () => {

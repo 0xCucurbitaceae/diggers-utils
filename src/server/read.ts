@@ -75,11 +75,12 @@ export async function readMedia(pasted: string, options: FetchOptions = {}): Pro
           provider,
           url,
           title: track.title,
-          artist: release.artist,
+          artist: track.artist ?? release.artist,
           artworkUrl: release.artworkUrl,
           durationSec: track.durationSec,
           bandcamp: {
             album: release.album,
+            albumUrl: release.albumUrl,
             tracks: release.tracks,
             defaultTrackId: release.defaultTrackId,
           },

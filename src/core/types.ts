@@ -4,6 +4,12 @@ import type { Provider } from "./providers";
 export interface BandcampTrack {
   trackId: string;
   title: string;
+  /** The track's own page — a link that names exactly this track, even when it came off an album. */
+  url: string | null;
+  /** Position on the release, from 1. */
+  trackNum: number | null;
+  /** Only on compilations, where tracks credit different artists; null means the release's artist. */
+  artist: string | null;
   /** Signed `mp3-128` URL; null when Bandcamp offers no public stream (purchase-only). */
   streamUrl: string | null;
   durationSec: number | null;
@@ -21,6 +27,8 @@ export interface MediaInfo {
   /** Only for Bandcamp: the release's tracklist, so an album link can be narrowed to one track. */
   bandcamp?: {
     album: string;
+    /** The album page; null for a single that isn't on one. */
+    albumUrl: string | null;
     tracks: BandcampTrack[];
     /** The track Bandcamp's own page loads first; null when nothing is streamable. */
     defaultTrackId: string | null;

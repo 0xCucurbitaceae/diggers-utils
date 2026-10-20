@@ -16,7 +16,7 @@ everything that shares a host — the throttle is the caller's job.
 ## Install
 
 ```bash
-pnpm add github:walidvb/diggers-utils#v0.1.0 react-player@2.16.1
+pnpm add github:walidvb/diggers-utils#v0.1.1 react-player@2.16.1
 ```
 
 `react`, `react-dom` and `react-player` are peer dependencies. react-player is
