@@ -28,6 +28,12 @@ export interface FetchOptions {
 }
 
 export interface Release {
+  /** Which kind of page this was read from. */
+  kind: "album" | "track";
+  /** The page's canonical URL, as Bandcamp gives it. */
+  url: string | null;
+  /** The album page: this page on an album, the album a `/track/` page belongs to, null for a lone single. */
+  albumUrl: string | null;
   artist: string;
   /** Album title on an album page; the track title on a `/track/` page. */
   album: string;
@@ -47,11 +53,21 @@ export type ReleaseOutcome =
 interface RawTrackInfo {
   track_id?: number | string;
   title?: string;
+  /** Page-relative, e.g. `/track/key`. */
+  title_link?: string | null;
+  track_num?: number | null;
+  /** Set on compilations only. */
+  artist?: string | null;
   duration?: number;
   file?: { "mp3-128"?: string } | null;
 }
 
 interface RawTralbum {
+  /** Absolute canonical URL of the page. */
+  url?: string;
+  item_type?: string;
+  /** `/track/` pages that are part of an album: page-relative. */
+  album_url?: string | null;
   artist?: string;
   art_id?: number | string;
   /** Album pages: the track Bandcamp's own player starts on. */
@@ -89,10 +105,23 @@ export function decodeEntities(s: string): string {
 const artworkUrlFromId = (artId: number | string | undefined | null) =>
   artId === undefined || artId === null ? null : `https://f4.bcbits.com/img/a${artId}_10.jpg`;
 
-function toTrack(t: RawTrackInfo): BandcampTrack {
+/** `link` made absolute against the page it was read from; null when either is missing or nonsense. */
+function absolute(link: string | null | undefined, base: string | undefined): string | null {
+  if (!link) return null;
+  try {
+    return new URL(link, base).toString();
+  } catch {
+    return null;
+  }
+}
+
+function toTrack(t: RawTrackInfo, pageUrl: string | undefined): BandcampTrack {
   return {
     trackId: String(t.track_id),
     title: t.title ?? "",
+    url: absolute(t.title_link, pageUrl),
+    trackNum: typeof t.track_num === "number" ? t.track_num : null,
+    artist: t.artist || null,
     streamUrl: t.file?.["mp3-128"] ?? null,
     durationSec: typeof t.duration === "number" ? t.duration : null,
   };
@@ -103,11 +132,11 @@ function toTrack(t: RawTrackInfo): BandcampTrack {
  * public stream (`streamUrl: null`) so the tracklist matches Bandcamp's page.
  */
 export function parseTralbum(blob: RawTralbum): Release | null {
-  let tracks = (blob.trackinfo ?? []).filter((t) => t.track_id != null).map(toTrack);
+  let tracks = (blob.trackinfo ?? []).filter((t) => t.track_id != null).map((t) => toTrack(t, blob.url));
 
   // A standalone /track/ page's `trackinfo` is sometimes empty, or missing the
   // track itself — its data lives in `current`. Fold it in.
-  const current = blob.current?.track_id != null ? toTrack(blob.current) : null;
+  const current = blob.current?.track_id != null ? toTrack(blob.current, blob.url) : null;
   if (current && !tracks.some((t) => t.trackId === current.trackId)) tracks = [current, ...tracks];
 
   if (tracks.length === 0) return null;
@@ -119,7 +148,11 @@ export function parseTralbum(blob: RawTralbum): Release | null {
   const defaultTrack =
     pick(current?.trackId) ?? pick(blob.featured_track_id?.toString()) ?? playable[0] ?? null;
 
+  const kind = blob.item_type === "track" ? "track" : "album";
   return {
+    kind,
+    url: blob.url ?? null,
+    albumUrl: kind === "album" ? (blob.url ?? null) : absolute(blob.album_url, blob.url),
     artist: blob.artist ?? "",
     album: blob.current?.title ?? tracks[0].title,
     tracks,

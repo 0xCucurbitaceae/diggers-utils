@@ -64,7 +64,12 @@ describe("readMedia", () => {
       title: "Key",
       artist: "C418",
       durationSec: 65,
-      bandcamp: { album: "Minecraft - Volume Alpha", defaultTrackId: "1660675500" },
+      bandcamp: {
+        album: "Minecraft - Volume Alpha",
+        artist: "C418",
+        albumUrl: "https://c418.bandcamp.com/album/minecraft-volume-alpha",
+        defaultTrackId: "1660675500",
+      },
     });
     expect(outcome.info.bandcamp?.tracks).toHaveLength(24);
   });
