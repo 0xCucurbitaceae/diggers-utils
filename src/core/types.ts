@@ -27,6 +27,8 @@ export interface MediaInfo {
   /** Only for Bandcamp: the release's tracklist, so an album link can be narrowed to one track. */
   bandcamp?: {
     album: string;
+    /** The release's artist ("Various Artists" on a compilation); `artist` above is the picked track's. */
+    artist: string;
     /** The album page; null for a single that isn't on one. */
     albumUrl: string | null;
     tracks: BandcampTrack[];
