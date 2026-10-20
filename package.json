@@ -8,11 +8,23 @@
     "./server": "./src/server/index.ts",
     "./react": "./src/react/index.ts"
   },
-  "dependencies": {
-    "react-player": "2.16.1"
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
-  }
+    "react-dom": "^18 || ^19",
+    "react-player": "^2.16.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@types/react": "^19.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-player": "2.16.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.2"
+  },
+  "packageManager": "pnpm@10.10.0"
 }
