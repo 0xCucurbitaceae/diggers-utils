@@ -8,8 +8,8 @@
  */
 
 import { useCallback, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent, type PointerEvent } from "react";
-import type { MediaRef } from "../core/types";
-import type { MediaEngineHandle, MediaEngineProps, Progress } from "./MediaEngine";
+import type { MediaRef } from "../core/types.js";
+import type { MediaEngineHandle, MediaEngineProps, Progress } from "./MediaEngine.js";
 
 export interface QueueItem {
   id: string;

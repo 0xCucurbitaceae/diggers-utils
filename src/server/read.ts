@@ -1,7 +1,7 @@
-import { detectProvider, normalizeUrl, parseUrl } from "../core/providers";
-import type { MediaInfo } from "../core/types";
-import { fetchRelease, type FetchOptions } from "./bandcamp";
-import { lookupOembed } from "./oembed";
+import { detectProvider, normalizeUrl, parseUrl } from "../core/providers.js";
+import type { MediaInfo } from "../core/types.js";
+import { fetchRelease, type FetchOptions } from "./bandcamp.js";
+import { lookupOembed } from "./oembed.js";
 
 export type ReadOutcome =
   | { kind: "ok"; info: MediaInfo }
